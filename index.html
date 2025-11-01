@@ -2,65 +2,50 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>複数URLオープナー（3秒後に新しいタブで開く）</title>
+<title>setTimeout禁止・強引遅延オープナー</title>
 <style>
-body {
-  font-family: sans-serif;
-  text-align: center;
-  margin-top: 40px;
-}
+body { font-family: sans-serif; text-align: center; margin-top: 40px; }
 button {
-  display: block;
-  width: 300px;
-  margin: 10px auto;
-  padding: 12px;
+  padding: 10px 20px;
   font-size: 18px;
-  border: none;
-  border-radius: 8px;
+  margin: 10px;
   cursor: pointer;
-  color: white;
+  border-radius: 8px;
+  border: none;
   background-color: #0078d7;
+  color: white;
   transition: 0.2s;
 }
-button:hover {
-  background-color: #005fa3;
-}
+button:hover { background-color: #005fa3; }
 </style>
 </head>
 <body>
 
-<h2>複数URLオープナー（3秒後に開く）</h2>
-<div id="buttons"></div>
+<h2>setTimeoutなし・無理矢理3秒遅延</h2>
+
+<button id="openBtn">URLを開く</button>
 
 <script>
 const urls = [
-  { name: "履歴1を開く", url: "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917" },
-  { name: "履歴2を開く", url: "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940" },
-  { name: "Google", url: "https://google.com" },
-  { name: "Yahoo!", url: "https://yahoo.co.jp" }
+  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
+  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
 ];
 
-const container = document.getElementById("buttons");
+let clickCount = 0;
 
-urls.forEach((item, index) => {
-  const btn = document.createElement("button");
-  btn.textContent = `${item.name}`;
-  btn.addEventListener("click", () => {
-    console.log(`🟢 [${index + 1}] '${item.name}' ボタン押下: 3秒後に開きます`);
-    btn.disabled = true;
-    btn.textContent = `${item.name}（3秒待機中...）`;
+document.getElementById("openBtn").addEventListener("click", function () {
+  const currentClick = ++clickCount;
+  const targetUrl = urls[(currentClick - 1) % urls.length];
+  console.log(`🕒 [${currentClick}] 疑似3秒待機中...`);
 
-    setTimeout(() => {
-      console.log(`🚀 [${index + 1}] '${item.name}' URLを開く: ${item.url}`);
-      const newTab = window.open(item.url, "_blank");
-      if (!newTab) {
-        console.warn(`⚠️ [${index + 1}] '${item.name}' ポップアップブロックの可能性`);
-      }
-      btn.disabled = false;
-      btn.textContent = item.name;
-    }, 3000);
-  });
-  container.appendChild(btn);
+  // 🧱 CPUブロッキングループで3秒待機（実時間）
+  const start = Date.now();
+  while (Date.now() - start < 3000) {
+    // 何もしない（CPUを消費して待つ）
+  }
+
+  console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
+  window.open(targetUrl, "_blank");
 });
 </script>
 
