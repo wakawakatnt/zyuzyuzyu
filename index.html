@@ -2,15 +2,22 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>連打式URLオープナー</title>
+<title>連打式 URLオープナー（改良版）</title>
 <style>
 body { font-family: sans-serif; text-align: center; margin-top: 40px; }
-button { padding: 12px 25px; font-size: 18px; cursor: pointer; border-radius: 8px; }
+button {
+  padding: 12px 25px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.1s;
+}
+button:active { transform: scale(0.95); background: #e0e0e0; }
 </style>
 </head>
 <body>
-<h2>連打式 URLオープナー</h2>
-<p>ボタンを連打すると、順番にURLが開きます</p>
+<h2>連打式 URLオープナー（改良版）</h2>
+<p>クリックしてもページが移動しないから連打できるで！</p>
 <button id="openBtn">開く！（連打OK）</button>
 
 <script>
@@ -22,7 +29,8 @@ let index = 0;
 
 document.getElementById("openBtn").onclick = () => {
   if (index < urls.length) {
-    window.open(urls[index], "_blank");
+    const u = urls[index];
+    window.open(u, "_blank", "noopener,noreferrer"); // ← フォーカス奪われない！
     index++;
   } else {
     alert("すべて開き終わりました！");
