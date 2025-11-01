@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Open2ch URLオープナー</title>
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  margin-top: 40px;
+}
+button {
+  padding: 12px 25px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+button:hover {
+  background-color: #f0f0f0;
+}
+</style>
+</head>
+<body>
+<h2>Open2ch URLオープナー</h2>
+<p>ボタンを押すと指定のURLを自動で開きます</p>
+
+<button id="openBtn">開く！</button>
+
+<script>
+document.getElementById("openBtn").onclick = function() {
+  const urls = [
+    "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
+    "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
+  ];
+  urls.forEach((u, i) => {
+    setTimeout(() => window.open(u, "_blank"), i * 800); // 0.8秒間隔で開く
+  });
+};
+</script>
+</body>
+</html>
