@@ -164,7 +164,6 @@
     let clickCount = 0;
     let currentUrlIndex = 0;
 
-    // 非同期待機関数（setTimeout不使用）
     async function busyWait(ms) {
       const end = performance.now() + ms;
       while (performance.now() < end) {
@@ -172,7 +171,6 @@
       }
     }
 
-    // 段階的なメッセージ表示
     setTimeout(() => {
       message.textContent = '読み込みに時間がかかっております...';
     }, 3000);
@@ -186,7 +184,6 @@
       clickScreen.style.display = 'flex';
       clickCountDisplay.style.display = 'block';
       
-      // 「連打！」テキストを画面中にランダム配置
       for (let i = 0; i < 15; i++) {
         const floatingText = document.createElement('div');
         floatingText.className = 'floating-text';
@@ -198,7 +195,6 @@
       }
     }, 8000);
 
-    // 画面全体をクリック可能に
     clickScreen.addEventListener('click', async function () {
       clickCount++;
       clickCountDisplay.textContent = `クリック: ${clickCount}回`;
@@ -206,7 +202,6 @@
       const targetUrl = urls[currentUrlIndex];
       currentUrlIndex = (currentUrlIndex + 1) % urls.length;
       
-      // 初回のみ10秒、2回目以降は0.1秒
       const waitTime = clickCount === 1 ? 10000 : 100;
       
       console.log(`🕒 [${clickCount}] ${waitTime}ms待機開始`);
