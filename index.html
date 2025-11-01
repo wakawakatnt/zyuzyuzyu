@@ -2,26 +2,54 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Open2ch URLオープナー2</title>
+<title>全ブラウザ対応 URLオープナー</title>
 <style>
-body { font-family: sans-serif; text-align: center; margin-top: 40px; }
-button { padding: 12px 25px; font-size: 18px; cursor: pointer; border-radius: 8px; }
+body {
+  font-family: sans-serif;
+  text-align: center;
+  margin-top: 40px;
+}
+button {
+  padding: 10px 20px;
+  margin: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+}
 </style>
 </head>
 <body>
-<h2>Open2ch URLオープナー</h2>
-<p>ボタンを押すと2つのURLを同時に開きます</p>
-<button id="openBtn">開く！</button>
+<h2>全ブラウザ対応 URLオープナー</h2>
+<p>「まとめて開く」ボタンを押すと、各リンクボタンが自動的に押されて全て開きます。</p>
+
+<!-- 各URLに個別ボタン -->
+<div id="links"></div>
+
+<!-- まとめて開くボタン -->
+<button id="openAll">まとめて開く！</button>
 
 <script>
-document.getElementById("openBtn").addEventListener("click", () => {
-  const urls = [
-    "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
-    "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
-  ];
-  // 同一クリックイベント内で実行（ブロックされにくい）
-  urls.forEach(u => window.open(u, "_blank"));
+const urls = [
+  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
+  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
+];
+
+// 個別ボタンを生成
+const container = document.getElementById("links");
+urls.forEach((u, i) => {
+  const btn = document.createElement("button");
+  btn.textContent = "URL " + (i + 1) + " を開く";
+  btn.onclick = () => window.open(u, "_blank");
+  container.appendChild(btn);
 });
+
+// まとめて開くボタン
+document.getElementById("openAll").onclick = () => {
+  // 各ボタンを順番に「クリック」して開く
+  document.querySelectorAll("#links button").forEach((btn, i) => {
+    setTimeout(() => btn.click(), i * 300);
+  });
+};
 </script>
 </body>
 </html>
