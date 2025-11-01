@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>連打式 URLオープナー（改良版）</title>
+<title>3秒待ってから開く URLオープナー</title>
 <style>
 body { font-family: sans-serif; text-align: center; margin-top: 40px; }
 button {
@@ -13,12 +13,14 @@ button {
   transition: 0.1s;
 }
 button:active { transform: scale(0.95); background: #e0e0e0; }
+#status { margin-top: 20px; font-size: 16px; color: #444; }
 </style>
 </head>
 <body>
-<h2>連打式 URLオープナー（改良版）</h2>
-<p>クリックしてもページが移動しないから連打できるで！</p>
+<h2>3秒待ってから開く URLオープナー</h2>
+<p>ボタンを連打してもページは移動せず、3秒後に順番に開くで！</p>
 <button id="openBtn">開く！（連打OK）</button>
+<div id="status"></div>
 
 <script>
 const urls = [
@@ -26,14 +28,25 @@ const urls = [
   "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
 ];
 let index = 0;
+let waiting = false;
 
 document.getElementById("openBtn").onclick = () => {
+  if (waiting) return; // 待機中は無視
+
   if (index < urls.length) {
     const u = urls[index];
-    window.open(u, "_blank", "noopener,noreferrer"); // ← フォーカス奪われない！
-    index++;
-  } else {
-    alert("すべて開き終わりました！");
+    waiting = true;
+    document.getElementById("status").textContent = "3秒後に開きます…";
+
+    setTimeout(() => {
+      window.open(u, "_blank", "noopener,noreferrer"); // フォーカス奪われない
+      document.getElementById("status").textContent = `URL ${index + 1} を開きました！`;
+      index++;
+      waiting = false;
+      if (index >= urls.length) {
+        document.getElementById("status").textContent = "すべて開き終わりました！";
+      }
+    }, 3000);
   }
 };
 </script>
