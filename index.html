@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>setTimeout禁止1・独立3秒遅延・連打同時開放</title>
+<title>setTimeout禁止・独立3秒遅延・連打同時開放</title>
 <style>
 body { font-family: sans-serif; text-align: center; margin-top: 40px; }
 button {
@@ -17,10 +17,6 @@ button {
   transition: 0.2s;
 }
 button:hover { background-color: #005fa3; }
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
 #status {
   margin-top: 20px;
   font-size: 16px;
@@ -38,57 +34,40 @@ const urls = [
   "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
 ];
 
-let pendingClicks = [];
-let isProcessing = false;
+let clickCount = 0;
 
-// requestAnimationFrameベースの遅延関数
-async function rafWait(ms) {
-  const end = performance.now() + ms;
+// setIntervalベースの遅延関数（setTimeoutの代替）
+function intervalWait(ms) {
   return new Promise(resolve => {
-    function tick() {
-      if (performance.now() >= end) {
+    const start = performance.now();
+    const interval = setInterval(() => {
+      if (performance.now() - start >= ms) {
+        clearInterval(interval);
         resolve();
-      } else {
-        requestAnimationFrame(tick);
       }
-    }
-    requestAnimationFrame(tick);
+    }, 10); // 10ミリ秒ごとにチェック
   });
 }
 
-document.getElementById("openBtn").addEventListener("click", async function () {
-  const btn = this;
+document.getElementById("openBtn").addEventListener("click", async function (e) {
   const statusDiv = document.getElementById("status");
+  const currentClick = ++clickCount;
+  const targetUrl = urls[(currentClick - 1) % urls.length];
   
-  // クリックを記録
-  const clickIndex = pendingClicks.length;
-  const targetUrl = urls[clickIndex % urls.length];
-  pendingClicks.push({ index: clickIndex + 1, url: targetUrl });
+  console.log(`🕒 [${currentClick}] 3秒待機開始`);
+  statusDiv.textContent = `[${currentClick}] 待機中...`;
   
-  console.log(`🕒 [${clickIndex + 1}] 3秒待機開始`);
-  statusDiv.textContent = `待機中: ${pendingClicks.length}個のURL`;
+  // setIntervalで3秒待機
+  await intervalWait(3000);
   
-  // 最初のクリックの場合、処理を開始
-  if (!isProcessing) {
-    isProcessing = true;
-    btn.disabled = true;
-    
-    // 3秒待機
-    await rafWait(3000);
-    
-    // 溜まっているすべてのクリックを一気に開く
-    const clicksToOpen = [...pendingClicks];
-    pendingClicks = [];
-    
-    console.log(`🚀 ${clicksToOpen.length}個のURLを同時に開きます`);
-    clicksToOpen.forEach(click => {
-      console.log(`🚀 [${click.index}] 開く: ${click.url}`);
-      window.open(click.url, "_blank");
-    });
-    
-    statusDiv.textContent = `${clicksToOpen.length}個のURLを開きました`;
-    btn.disabled = false;
-    isProcessing = false;
+  console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
+  const newWindow = window.open(targetUrl, "_blank");
+  
+  if (!newWindow) {
+    console.error(`❌ [${currentClick}] ポップアップブロックされました`);
+    statusDiv.textContent = "ポップアップを許可してください";
+  } else {
+    statusDiv.textContent = `[${currentClick}] 開きました`;
   }
 });
 </script>
