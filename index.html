@@ -2,68 +2,83 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>独立遅延URLオープナー（デバッグ付き）</title>
+<title>複数URLオープナー（各ボタン独立3秒遅延）</title>
 <style>
-body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+body {
+  font-family: sans-serif;
+  text-align: center;
+  margin-top: 40px;
+}
 button {
-  padding: 10px 20px;
+  display: block;
+  width: 300px;
+  margin: 10px auto;
+  padding: 12px;
   font-size: 18px;
-  margin: 10px;
-  cursor: pointer;
-  border-radius: 8px;
   border: none;
-  background-color: #0078d7;
+  border-radius: 8px;
+  cursor: pointer;
   color: white;
+  background-color: #0078d7;
   transition: 0.2s;
 }
-button:hover { background-color: #005fa3; }
+button:hover {
+  background-color: #005fa3;
+}
 </style>
 </head>
 <body>
 
-<h2>複数URLオープナー（3秒遅延＋独立＋デバッグ）</h2>
+<h2>複数URLオープナー（各ボタン独立・3秒後に開く）</h2>
 
-<button id="openBtn">URLを開く</button>
+<div id="buttons"></div>
 
 <script>
 const urls = [
-  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
-  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
+  { name: "履歴1を開く", url: "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917" },
+  { name: "履歴2を開く", url: "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940" },
+  { name: "Google", url: "https://google.com" },
+  { name: "Yahoo!", url: "https://yahoo.co.jp" }
 ];
 
-let clickCount = 0;
+const container = document.getElementById("buttons");
 
-function setupButton(btn) {
-  btn.addEventListener("click", function () {
-    const currentClick = ++clickCount;
-    const newBtn = this.cloneNode(true);
+urls.forEach((item, index) => {
+  const btn = document.createElement("button");
+  btn.textContent = item.name;
+  btn.addEventListener("click", () => {
+    console.log(`🟢 [${index + 1}] '${item.name}' 押下: 空タブを開きます`);
+    const newTab = window.open("about:blank", "_blank");
 
-    console.log(`🟢 [${currentClick}] ボタン押下: 3秒後にURLを開きます`);
-    this.replaceWith(newBtn);
+    if (!newTab) {
+      console.warn(`⚠️ [${index + 1}] '${item.name}' ポップアップブロックされました`);
+      return;
+    }
 
-    // 新しいボタンにも再びイベント設定
-    setupButton(newBtn);
+    // 空タブにカウントダウンを表示（見た目が自然）
+    newTab.document.write(`
+      <html><body style="font-family:sans-serif;text-align:center;margin-top:50px;">
+      <h2>3秒後に移動します...</h2>
+      <p id="count">3</p>
+      <script>
+        let t = 3;
+        const c = document.getElementById('count');
+        const timer = setInterval(()=>{
+          t--;
+          c.textContent = t;
+          if(t <= 0){
+            clearInterval(timer);
+            location.href = "${item.url}";
+          }
+        },1000);
+      <\/script>
+      </body></html>
+    `);
 
-    // 遅延処理
-    setTimeout(() => {
-      const targetUrl = urls[(currentClick - 1) % urls.length];
-      console.log(`🚀 [${currentClick}] URLを開く: ${targetUrl}`);
-      try {
-        const newTab = window.open(targetUrl, "_blank");
-        if (newTab) {
-          console.log(`✅ [${currentClick}] タブ開成功`);
-        } else {
-          console.warn(`⚠️ [${currentClick}] ポップアップブロックの可能性`);
-        }
-      } catch (e) {
-        console.error(`❌ [${currentClick}] エラー:`, e);
-      }
-    }, 3000);
+    console.log(`⏳ [${index + 1}] '${item.name}' 3秒後に遷移予定: ${item.url}`);
   });
-}
-
-// 初期ボタンを登録
-setupButton(document.getElementById("openBtn"));
+  container.appendChild(btn);
+});
 </script>
 
 </body>
